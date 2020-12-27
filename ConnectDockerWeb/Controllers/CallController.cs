@@ -32,6 +32,37 @@ namespace ConnectDockerWeb.Controllers
             //ViewBag.ip = test;
             return View();
         }
+
+        public ActionResult CommitDocker(string name, string imageName)
+        {
+            try
+            {
+                string command = "docker commit " + name + " " + imageName;
+                string test = ExecuteCommandSync(command);
+                return View("Index");
+            }
+            catch
+            {
+
+                return View("Index");
+            }
+            //string test = ExecuteCommandSync("ipconfig");
+            //ViewBag.ip = test;
+        }
+
+        public ActionResult DeployPortainer(string localIP)
+        {
+            //- Deploy Portainer 
+            string command1 = ExecuteCommandSync("docker volume create portainer_data");
+            string command2 = ExecuteCommandSync("docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer");
+            //- Deploy docker stack
+            string command3 = ExecuteCommandSync("curl -L https://downloads.portainer.io/portainer-agent-stack.yml -o portainer-agent-stack.yml");
+            string command4 = ExecuteCommandSync("docker stack deploy --compose-file=portainer-agent-stack.yml portainer");
+            //get IP to open web UI Portainer
+            ViewBag.Link = localIP+":9000";
+            return View("Index");
+        }
+
         [HttpPost]
         public ActionResult Test(FormCollection fc)
         {
