@@ -12,18 +12,44 @@
     <title>Index</title>
 </head>
 <body>
-    <div class="container" style="text-align: center; margin-top: 200px">
-        <div class="form-group">
-            <label>Khởi Động docker</label>
-        </div>
-        <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/Start"><input type="submit" class="btn btn-primary" value="Kết Nối" /></a>
-        </div>
-        <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Dừng Lại" /></a>
-        </div>
-        <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/Test"><input type="submit" class="btn btn-primary" value="CMD" /></a>
+    <div id="left_button">
+        <div class="container" style="text-align: center; margin-top: 200px">
+            <div class="form-group">
+                <label>Khởi Động docker</label>
+            </div>
+            <form action="/Call/Start" method="post">
+                <div class="form-group" style="margin-top: 20px">
+                    <input type="text" name="nameContainer" style="height: 30px" placeholder="Nhập tên container..." />
+                </div>
+                <div class="form-group" style="margin-top: 20px">
+                    <a href="/Call/Start"><input type="submit" class="btn btn-primary" value="Kết Nối" /></a>
+                </div>
+            </form>
+
+            <div class="form-group" style="margin-top: 20px">
+                <a href="/Call/SeeImage"><input type="submit" class="btn btn-primary" value="Image" /></a>
+            </div>
+            <div class="form-group" style="margin-top: 20px">
+                <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Dừng Lại" /></a>
+            </div>
+            <div class="form-group" style="margin-top: 20px">
+                <a href="/Call/Test"><input type="submit" class="btn btn-primary" value="CMD" /></a>
+            </div>
+            @if (ViewBag.Link != null)
+            {
+                <div class="form-group" style="margin-top: 20px">
+                    <a href="@ViewBag.Link" target="_blank" class="btn btn-primary">Open Portainer</a>
+                </div>
+                <div class="form-group" style="margin-top: 20px">
+                    <a href="/Call/ClosePortainer"><input type="submit" class="btn btn-primary" value="Close Portainer" /></a>
+                </div>
+            }
+            else
+            {
+                <div class="form-group" style="margin-top: 20px">
+                    <a href="/Call/DeployPortainer"><input type="submit" class="btn btn-primary" value="Open Portainer" /></a>
+                </div>
+            }
         </div>
     </div>
 </body>
