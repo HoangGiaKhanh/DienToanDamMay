@@ -2,6 +2,8 @@
 @{
     Layout = null;
     string ipconfig = ViewBag.ip;
+    string Image = ViewBag.Image;
+    string Container = ViewBag.Container;
 }
 
 <!DOCTYPE html>
@@ -12,28 +14,65 @@
     <title>Index</title>
 </head>
 <body>
-    <div class="container" style="text-align: center; margin-top: 200px">
-        <div class="form-group">
-            <label>Khởi Động docker</label>
-        </div>
+    <center>
+        <h1 style="font-weight: bold">SỬ DỤNG DOCKER ĐỂ ẢO HÓA UBUNTU</h1>
+        <hr />
+        <h2>Khởi Động Docker</h2>
         <form action="/Call/Start" method="post">
             <div class="form-group" style="margin-top: 20px">
-                <input type="text" name="nameContainer" style="height: 30px" placeholder="Nhập tên container..." />
-            </div>
-            <div class="form-group" style="margin-top: 20px">
-                <a href="/Call/Start"><input type="submit" class="btn btn-primary" value="Kết Nối" /></a>
+                <input type="text" name="nameContainer" style="height: 20px" placeholder="Nhập tên container..." />
+                <br />
+                <br />
+                <a href="/Call/Start"><input type="submit" class="btn btn-primary" value="Khởi Động" name="start" style="height: 25px; width: 100px" /></a>
             </div>
         </form>
+        <br />
+        <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Dừng Lại" name="stop" style="height: 25px; width: 100px" /></a>
+    </center>
+    <hr />
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <center>
+                    <h2>Command Prompt trên giao diện Web</h2>
+                </center>
+                <div class="form-group">
+                    @using (Html.BeginForm("Index", "Call", FormMethod.Get))
+                    {
+                        <center>
+                            <input type="text" name="code" style="height: 20px" />
+                            <a href="/Call/Index"><input type="submit" class="btn btn-primary" value="Thực hiện lệnh"style="height: 25px; width: 100px" /></a>
+                        </center>
+                    }
+                </div>
+                <div class="form-group">
+                    <center>
+                        <textarea style="width: 60%; height: 700px">@ipconfig</textarea>
+                    </center>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <center>
+                    <h2>Các Image đang có của Image</h2>
+                </center>
+                <div class="form-group">
+                    <center>
+                        <textarea style="width: 1300px; height: 400px">@Image</textarea>
+                    </center>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <center>
+                    <h2>Các Container đang chạy của Docker</h2>
+                </center>
+                <div class="form-group">
+                    <center>
+                        <textarea style="width: 1000px; height: 400px">@Container</textarea>
+                    </center>
+                </div>
+            </div>
+        </div>
 
-        <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/SeeImage"><input type="submit" class="btn btn-primary" value="Image" /></a>
-        </div>
-        <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Dừng Lại" /></a>
-        </div>
-        <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/Test"><input type="submit" class="btn btn-primary" value="CMD" /></a>
-        </div>
     </div>
 </body>
 </html>
