@@ -16,8 +16,17 @@
         <div class="form-group">
             <label>Khởi Động docker</label>
         </div>
+        <form action="/Call/Start" method="post">
+            <div class="form-group" style="margin-top: 20px">
+                <input type="text" name="nameContainer" style="height: 30px" placeholder="Nhập tên container..." />
+            </div>
+            <div class="form-group" style="margin-top: 20px">
+                <a href="/Call/Start"><input type="submit" class="btn btn-primary" value="Kết Nối" /></a>
+            </div>
+        </form>
+
         <div class="form-group" style="margin-top: 20px">
-            <a href="/Call/Start"><input type="submit" class="btn btn-primary" value="Kết Nối" /></a>
+            <a href="/Call/SeeImage"><input type="submit" class="btn btn-primary" value="Image" /></a>
         </div>
         <div class="form-group" style="margin-top: 20px">
             <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Dừng Lại" /></a>

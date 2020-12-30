@@ -13,16 +13,25 @@ namespace ConnectDockerWeb.Controllers
         {
             return View();
         }
-        public ActionResult Start()
+        [HttpPost]
+        public ActionResult Start(string nameContainer)
         {
-            ModelState.AddModelError("", "Kết Nối Thành Công");
-            ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name javacompile ubuntu:18.04");
+            Session["Name"] = nameContainer;
+            string value = ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name " + nameContainer + " ubuntu:18.04");
+            if (value == "")
+            {
+                ExecuteCommandSync("docker stop " + nameContainer);
+                ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name CLOUDCompile-2 ubuntu:18.04");
+            }
             return RedirectToAction("/Index");
         }
         public ActionResult Stop()
         {
-            ModelState.AddModelError("", "Dừng Docker Thành Công");
-            ExecuteCommandSync("docker stop javacompile");
+            string nameContainer = (string)Session["Name"];
+            ExecuteCommandSync("docker stop " + nameContainer);
+            ExecuteCommandSync("docker rm /" + nameContainer);
+            ExecuteCommandSync("docker stop CLOUDCompile-2");
+            ExecuteCommandSync("docker rm /CLOUDCompile-2");
             return RedirectToAction("/Index");
         }
 
@@ -59,6 +68,13 @@ namespace ConnectDockerWeb.Controllers
             {
                 return "";
             }
+        }
+
+        public ActionResult SeeImage()
+        {
+            ViewBag.Image = ExecuteCommandSync("docker images --digests");
+            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
+            return View();
         }
     }
 }
