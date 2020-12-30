@@ -81,7 +81,6 @@ namespace ConnectDockerWeb.Controllers
             string commandrm2 = ExecuteCommandSync("docker container rm portainer");
             return View("Index");
         }
-
         public string ExecuteCommandSync(object command)
         {
             try
