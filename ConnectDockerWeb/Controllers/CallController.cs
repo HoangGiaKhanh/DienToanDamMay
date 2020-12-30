@@ -9,8 +9,13 @@ namespace ConnectDockerWeb.Controllers
     public class CallController : Controller
     {
         // GET: Call
-        public ActionResult Index()
+        [HttpGet]
+        public ActionResult Index(string code)
         {
+            ViewBag.Image = ExecuteCommandSync("docker images --digests");
+            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
+            string test = ExecuteCommandSync(code);
+            ViewBag.ip = test;
             return View();
         }
         [HttpPost]
@@ -25,18 +30,6 @@ namespace ConnectDockerWeb.Controllers
             }
             return RedirectToAction("/Index");
         }
-        [HttpPost]
-        public ActionResult Start(string nameContainer)
-        {
-            Session["Name"] = nameContainer;
-            string value = ExecuteCommandSync("docker run -it -d -v C:/Users/GiaKhanh/Downloads/JavaProject:/data --name " + nameContainer + " ubuntu:18.04");
-            if (value == "")
-            {
-                ExecuteCommandSync("docker stop " + nameContainer);
-                ExecuteCommandSync("docker run -it -d -v C:/Users/GiaKhanh/Downloads/JavaProject:/data --name CLOUDCompile-2 ubuntu:18.04");
-            }
-            return RedirectToAction("/Index");
-        }
         public ActionResult Stop()
         {
             string nameContainer = (string)Session["Name"];
@@ -45,28 +38,6 @@ namespace ConnectDockerWeb.Controllers
             ExecuteCommandSync("docker stop CLOUDCompile-2");
             ExecuteCommandSync("docker rm /CLOUDCompile-2");
             return RedirectToAction("/Index");
-        }
-
-        public ActionResult Test()
-        {
-            //string test = ExecuteCommandSync("ipconfig");
-            //ViewBag.ip = test;
-            return View();
-        }
-        [HttpPost]
-        public ActionResult Test(FormCollection fc)
-        {
-            string command = fc["code"];
-            string test = ExecuteCommandSync(command);
-            ViewBag.ip = test;
-            return View();
-        }
-
-        public ActionResult SeeImage()
-        {
-            ViewBag.Image = ExecuteCommandSync("docker images --digests");
-            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
-            return View();
         }
 
         public ActionResult CommitDocker(string name, string imageName)
@@ -110,16 +81,6 @@ namespace ConnectDockerWeb.Controllers
             string commandrm2 = ExecuteCommandSync("docker container rm portainer");
             return View("Index");
         }
-
-        [HttpPost]
-        public ActionResult Test(FormCollection fc)
-        {
-            string command = fc["code"];
-            string test = ExecuteCommandSync(command);
-            ViewBag.ip = test;
-            return View();
-        }
-
         public string ExecuteCommandSync(object command)
         {
             try
@@ -138,13 +99,6 @@ namespace ConnectDockerWeb.Controllers
             {
                 return "";
             }
-        }
-
-        public ActionResult SeeImage()
-        {
-            ViewBag.Image = ExecuteCommandSync("docker images --digests");
-            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
-            return View();
         }
     }
 }
