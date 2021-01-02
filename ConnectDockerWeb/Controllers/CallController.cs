@@ -9,6 +9,15 @@ namespace ConnectDockerWeb.Controllers
     public class CallController : Controller
     {
         // GET: Call
+        [HttpGet]
+        public ActionResult Index(string code)
+        {
+            ViewBag.Image = ExecuteCommandSync("docker images --digests");
+            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
+            string test = ExecuteCommandSync(code);
+            ViewBag.ip = test;
+            return View();
+        }
         public ActionResult Index()
         {
             return View();
@@ -19,10 +28,39 @@ namespace ConnectDockerWeb.Controllers
             ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name javacompile ubuntu:18.04");
             return RedirectToAction("/Index");
         }
+        [HttpPost]
+        public ActionResult Start(string nameContainer, string numberCPUs, string numberRAMs)
+        {
+            Session["Name"] = nameContainer;
+            var test = "docker run -it --name " + nameContainer + " --memory=" + numberRAMs + " --cpus=" + numberCPUs + " ubuntu: 18.04";
+            //string test = String.Format("docker run -it --name " + "{0}" + " --memory=" + "\"{1}\""  + " --cpus=" + "\"{2}\""  + " ubuntu: 18.04",nameContainer, numberRAMs, numberCPUs);
+            string value = ExecuteCommandSync(test);
+            if (value == "")
+            {
+                ExecuteCommandSync("docker stop " + nameContainer);
+                ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name CLOUDCompile-2 ubuntu:18.04");
+            }
+            return RedirectToAction("/Index");
+        }
+        [HttpPost]
+        public ActionResult Start(string nameContainer)
+        {
+            Session["Name"] = nameContainer;
+            string value = ExecuteCommandSync("docker run -it -d -v C:/Users/GiaKhanh/Downloads/JavaProject:/data --name " + nameContainer + " ubuntu:18.04");
+            if (value == "")
+            {
+                ExecuteCommandSync("docker stop " + nameContainer);
+                ExecuteCommandSync("docker run -it -d -v C:/Users/GiaKhanh/Downloads/JavaProject:/data --name CLOUDCompile-2 ubuntu:18.04");
+            }
+            return RedirectToAction("/Index");
+        }
         public ActionResult Stop()
         {
-            ModelState.AddModelError("", "Dừng Docker Thành Công");
-            ExecuteCommandSync("docker stop javacompile");
+            string nameContainer = (string)Session["Name"];
+            ExecuteCommandSync("docker stop " + nameContainer);
+            ExecuteCommandSync("docker rm /" + nameContainer);
+            ExecuteCommandSync("docker stop CLOUDCompile-2");
+            ExecuteCommandSync("docker rm /CLOUDCompile-2");
             return RedirectToAction("/Index");
         }
 
@@ -40,6 +78,56 @@ namespace ConnectDockerWeb.Controllers
             ViewBag.ip = test;
             return View();
         }
+
+        public ActionResult SeeImage()
+        {
+            ViewBag.Image = ExecuteCommandSync("docker images --digests");
+            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
+            return View();
+        }
+
+        public ActionResult CommitDocker(string name, string imageName)
+        {
+            //chức năng lưu cấu hình container theo tên
+            try
+            {
+                string command = "docker commit " + name + " " + imageName;
+                string test = ExecuteCommandSync(command);
+                return View("Index");
+            }
+            catch
+            {
+
+                return View("Index");
+            }
+            //string test = ExecuteCommandSync("ipconfig");
+            //ViewBag.ip = test;
+        }
+
+        public ActionResult DeployPortainer()
+        {
+            //remove container nếu đã tồn tại
+            string commandrm1 = ExecuteCommandSync("docker container stop portainer");
+            string commandrm2 = ExecuteCommandSync("docker container rm portainer");
+            //- Deploy Portainer 
+            string command1 = ExecuteCommandSync("docker volume create portainer_data");
+            string command2 = ExecuteCommandSync("docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer");
+            //- Deploy docker stack
+            string command3 = ExecuteCommandSync("curl -L https://downloads.portainer.io/portainer-agent-stack.yml -o portainer-agent-stack.yml");
+            string command4 = ExecuteCommandSync("docker stack deploy --compose-file=portainer-agent-stack.yml portainer");
+            //tạo đường dẫn đến giao diện web portainer
+            ViewBag.Link = "localhost:9000";
+            return View("Index");
+        }
+
+        public ActionResult ClosePortainer()
+        {
+            //remove container
+            string commandrm1 = ExecuteCommandSync("docker container stop portainer");
+            string commandrm2 = ExecuteCommandSync("docker container rm portainer");
+            return View("Index");
+        }
+
 
         public string ExecuteCommandSync(object command)
         {
