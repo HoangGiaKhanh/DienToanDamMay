@@ -9,6 +9,15 @@ namespace ConnectDockerWeb.Controllers
     public class CallController : Controller
     {
         // GET: Call
+        [HttpGet]
+        public ActionResult Index(string code)
+        {
+            ViewBag.Image = ExecuteCommandSync("docker images --digests");
+            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
+            string test = ExecuteCommandSync(code);
+            ViewBag.ip = test;
+            return View();
+        }
         public ActionResult Index()
         {
             return View();
@@ -17,6 +26,20 @@ namespace ConnectDockerWeb.Controllers
         {
             ModelState.AddModelError("", "Kết Nối Thành Công");
             ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name javacompile ubuntu:18.04");
+            return RedirectToAction("/Index");
+        }
+        [HttpPost]
+        public ActionResult Start(string nameContainer, string numberCPUs, string numberRAMs)
+        {
+            Session["Name"] = nameContainer;
+            var test = "docker run -it --name " + nameContainer + " --memory=" + numberRAMs + " --cpus=" + numberCPUs + " ubuntu: 18.04";
+            //string test = String.Format("docker run -it --name " + "{0}" + " --memory=" + "\"{1}\""  + " --cpus=" + "\"{2}\""  + " ubuntu: 18.04",nameContainer, numberRAMs, numberCPUs);
+            string value = ExecuteCommandSync(test);
+            if (value == "")
+            {
+                ExecuteCommandSync("docker stop " + nameContainer);
+                ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name CLOUDCompile-2 ubuntu:18.04");
+            }
             return RedirectToAction("/Index");
         }
         [HttpPost]
@@ -105,14 +128,6 @@ namespace ConnectDockerWeb.Controllers
             return View("Index");
         }
 
-        [HttpPost]
-        public ActionResult Test(FormCollection fc)
-        {
-            string command = fc["code"];
-            string test = ExecuteCommandSync(command);
-            ViewBag.ip = test;
-            return View();
-        }
 
         public string ExecuteCommandSync(object command)
         {
