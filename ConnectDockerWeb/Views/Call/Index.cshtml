@@ -15,6 +15,8 @@
     <center>
         <h1 style="font-weight: bold">SỬ DỤNG DOCKER ĐỂ ẢO HÓA UBUNTU</h1>
         <hr />
+    </center>
+    <div style="width:300px; height:100%;text-align:center; margin-left:180px;float:left">
         <h2>Khởi Động Docker</h2>
         <form action="/Call/Start" method="post">
             <div class="form-group" style="margin-top: 20px">
@@ -32,10 +34,10 @@
                 <br />
                 <label>RAMs</label>
                 <select name="numberRAMs" style="height: 30px; width: 100px">
-                    <option value="1g">1 GB</option>
-                    <option value="2g">2 GB</option>
-                    <option value="3g">3 GB</option>
-                    <option value="4g">4 GB</option>
+                    <option value="1G">1 GB</option>
+                    <option value="2G">2 GB</option>
+                    <option value="3G">3 GB</option>
+                    <option value="4G">4 GB</option>
                 </select>
                 <br />
                 <br />
@@ -43,7 +45,7 @@
             </div>
         </form>
         <br />
-        <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Dừng Lại" name="stop" style="height: 25px; width: 100px" /></a>
+        <a href="/Call/Stop"><input type="submit" class="btn btn-primary" value="Tắt container" name="stop" style="height: 25px; width: 100px" /></a>
         @if (ViewBag.Link != null)
         {
             <div class="form-group" style="margin-top: 20px">
@@ -52,56 +54,50 @@
             <div class="form-group" style="margin-top: 20px">
                 <a href="/Call/ClosePortainer"><input type="submit" class="btn btn-primary" value="Close Portainer" /></a>
             </div> }
-         else
-         {
+        else
+        {
             <div class="form-group" style="margin-top: 20px">
                 <a href="/Call/DeployPortainer"><input type="submit" class="btn btn-primary" value="Open Portainer" /></a>
             </div>
+        }
+        <div class="form-group" style="margin-top:20px">
+            <a href="/Call/SeeImage"><input type="submit" class="btn btn-primary" value="Xem thông số" name="stop" style="height: 25px; width: 100px" /></a>
+        </div>
+        <div class="form-group" style="margin-top:20px">
+            <a href="/Call/SeeStats"><input type="submit" class="btn btn-primary" value="Docker stats" name="stop" style="height: 25px; width: 100px" /></a>
+        </div>
+    </div>
+    <div style="width:700px;height:100%;text-align:center;border-left:dashed;float:left">
+        <div class="form-group">
+            @using (Html.BeginForm("Index", "Call", FormMethod.Post))
+            {
+                <input type="text" name="code" style="height: 20px" />
+                <a href="/Call/Index"><input type="submit" class="btn btn-primary" value="Thực hiện lệnh" style="height: 25px; width: 100px" /></a>
             }
-    </center>
+        </div>
+        <div class="form-group">
+            <center>
+                <textarea style="width: 90%; height: 350px">@ipconfig</textarea>
+            </center>
+        </div>
+    </div>
+    <div class="clear" style="clear:both"></div>
     <hr />
     <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <center>
-                    <h2>Command Prompt trên giao diện Web</h2>
-                </center>
+        <div class="row" style="text-align:center;margin-left:20px">
+            <div style="width:600px;height:500px;float:left">
+                <h2>Các Image đang có của Docker</h2>
                 <div class="form-group">
-                    @using (Html.BeginForm("Index", "Call", FormMethod.Get))
-                    {
-        <center>
-            <input type="text" name="code" style="height: 20px" />
-            <a href="/Call/Index"><input type="submit" class="btn btn-primary" value="Thực hiện lệnh" style="height: 25px; width: 100px" /></a>
-        </center>}
-                </div>
-                <div class="form-group">
-                    <center>
-                        <textarea style="width: 60%; height: 700px">@ipconfig</textarea>
-                    </center>
+                    <textarea placeholder="Nhấn Xem thông số để biết thêm..." style="width: 600px; height: 400px">@Image</textarea>
                 </div>
             </div>
-            <div class="col-md-12">
-                <center>
-                    <h2>Các Image đang có của Image</h2>
-                </center>
+            <div style="width:600px;height:500px;float:left;margin-left:100px">
+                <h2>Các Container đang chạy của Docker</h2>
                 <div class="form-group">
-                    <center>
-                        <textarea style="width: 1300px; height: 400px">@Image</textarea>
-                    </center>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <center>
-                    <h2>Các Container đang chạy của Docker</h2>
-                </center>
-                <div class="form-group">
-                    <center>
-                        <textarea style="width: 1000px; height: 400px">@Container</textarea>
-                    </center>
+                    <textarea placeholder="Nhấn Xem thông số để biết thêm..." style="width: 600px; height: 400px">@Container</textarea>
                 </div>
             </div>
         </div>
-
     </div>
 </body>
 </html>
