@@ -3,67 +3,58 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Diagnostics;
 
 namespace ConnectDockerWeb.Controllers
 {
     public class CallController : Controller
     {
-        // GET: Call
-        [HttpGet]
-        public ActionResult Index(string code)
-        {
-            ViewBag.Image = ExecuteCommandSync("docker images --digests");
-            ViewBag.Container = ExecuteCommandSync("docker container ls --all");
-            string test = ExecuteCommandSync(code);
-            ViewBag.ip = test;
-            return View();
-        }
+        #region trang chính
         public ActionResult Index()
         {
             return View();
         }
-        public ActionResult Start()
+        [HttpPost]
+        public ActionResult Index(string code)
         {
-            ModelState.AddModelError("", "Kết Nối Thành Công");
-            ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name javacompile ubuntu:18.04");
-            return RedirectToAction("/Index");
+            string test = ExecuteCommandSync(code);
+            ViewBag.ip = test;
+            return View();
         }
+        #endregion
+
+        #region Start - Stop
+        //public ActionResult Start()
+        //{
+        //    //không dùng nữa
+        //    ModelState.AddModelError("", "Kết Nối Thành Công");
+        //    ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name javacompile ubuntu:18.04");
+        //    return RedirectToAction("Index");
+        //}
         [HttpPost]
         public ActionResult Start(string nameContainer, string numberCPUs, string numberRAMs)
         {
             Session["Name"] = nameContainer;
-            var test = "docker run -it --name " + nameContainer + " --memory=" + numberRAMs + " --cpus=" + numberCPUs + " ubuntu: 18.04";
-            //string test = String.Format("docker run -it --name " + "{0}" + " --memory=" + "\"{1}\""  + " --cpus=" + "\"{2}\""  + " ubuntu: 18.04",nameContainer, numberRAMs, numberCPUs);
-            string value = ExecuteCommandSync(test);
-            if (value == "")
-            {
-                ExecuteCommandSync("docker stop " + nameContainer);
-                ExecuteCommandSync("docker run -it -d -v C:/Users:/data --name CLOUDCompile-2 ubuntu:18.04");
-            }
-            return RedirectToAction("/Index");
-        }
-        [HttpPost]
-        public ActionResult Start(string nameContainer)
-        {
-            Session["Name"] = nameContainer;
-            string value = ExecuteCommandSync("docker run -it -d -v C:/Users/GiaKhanh/Downloads/JavaProject:/data --name " + nameContainer + " ubuntu:18.04");
-            if (value == "")
-            {
-                ExecuteCommandSync("docker stop " + nameContainer);
-                ExecuteCommandSync("docker run -it -d -v C:/Users/GiaKhanh/Downloads/JavaProject:/data --name CLOUDCompile-2 ubuntu:18.04");
-            }
-            return RedirectToAction("/Index");
+            var test = "docker run -it --name " + nameContainer + " --memory " + numberRAMs + " --cpus " + numberCPUs + " ubuntu:18.04";
+            //string value = ExecuteCommandSync(test);
+            //if (value == "")
+            //{
+            //    ViewBag.ip = "Không thành công, đã xảy ra lỗi!";
+            //}
+            ExecuteCommandLineWithoutReturn(test);
+            return View("Index");
         }
         public ActionResult Stop()
         {
-            string nameContainer = (string)Session["Name"];
-            ExecuteCommandSync("docker stop " + nameContainer);
-            ExecuteCommandSync("docker rm /" + nameContainer);
-            ExecuteCommandSync("docker stop CLOUDCompile-2");
-            ExecuteCommandSync("docker rm /CLOUDCompile-2");
-            return RedirectToAction("/Index");
+            string container = Session["Name"].ToString();
+            ExecuteCommandSync("docker stop " + container);
+            ExecuteCommandSync("docker rm /" + container);
+            Session["Name"] = null;
+            return RedirectToAction("Index");
         }
+        #endregion
 
+        #region Test code
         public ActionResult Test()
         {
             //string test = ExecuteCommandSync("ipconfig");
@@ -78,12 +69,20 @@ namespace ConnectDockerWeb.Controllers
             ViewBag.ip = test;
             return View();
         }
+        #endregion
 
+        #region docker actions
+
+        public ActionResult SeeStats()
+        {
+            ExecuteCommandLineWithoutReturn("docker stats");
+            return View("Index");
+        }
         public ActionResult SeeImage()
         {
             ViewBag.Image = ExecuteCommandSync("docker images --digests");
             ViewBag.Container = ExecuteCommandSync("docker container ls --all");
-            return View();
+            return View("Index");
         }
 
         public ActionResult CommitDocker(string name, string imageName)
@@ -100,10 +99,10 @@ namespace ConnectDockerWeb.Controllers
 
                 return View("Index");
             }
-            //string test = ExecuteCommandSync("ipconfig");
-            //ViewBag.ip = test;
         }
+        #endregion
 
+        #region Portainer
         public ActionResult DeployPortainer()
         {
             //remove container nếu đã tồn tại
@@ -127,17 +126,19 @@ namespace ConnectDockerWeb.Controllers
             string commandrm2 = ExecuteCommandSync("docker container rm portainer");
             return View("Index");
         }
-
+        #endregion
 
         public string ExecuteCommandSync(object command)
         {
             try
             {
-                System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
+                ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + command);
+                processStartInfo.WindowStyle = ProcessWindowStyle.Normal;
+
                 processStartInfo.RedirectStandardOutput = true;
                 processStartInfo.UseShellExecute = false;
                 processStartInfo.CreateNoWindow = true;
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                Process process = new Process();
                 process.StartInfo = processStartInfo;
                 process.Start();
                 string result = process.StandardOutput.ReadToEnd();
@@ -146,6 +147,26 @@ namespace ConnectDockerWeb.Controllers
             catch (Exception)
             {
                 return "";
+            }
+        }
+
+        public ActionResult ExecuteCommandLineWithoutReturn(object command)
+        {
+            try
+            {
+                ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + command);
+                processStartInfo.WindowStyle = ProcessWindowStyle.Normal;
+
+                processStartInfo.UseShellExecute = true;
+                Process process = new Process();
+                process.StartInfo = processStartInfo;
+                process.Start();
+                return View("Index");
+            }
+            catch (Exception)
+            {
+                ViewBag.ip = "Không thành công, đã xảy ra lỗi!";
+                return View("Index");
             }
         }
     }
