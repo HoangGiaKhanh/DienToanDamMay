@@ -146,10 +146,5 @@ namespace ConnectDockerWeb.Controllers
             ViewBag.Container = ExecuteCommandSync("docker container ls --all");
             return View();
         }
-
-        public ActionResult test()
-        {
-            return 0;
-        }
     }
 }
